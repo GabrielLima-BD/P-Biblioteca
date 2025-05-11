@@ -1,0 +1,156 @@
+-- Tabela: Genero
+-- Normaliza os gêneros dos livros
+CREATE TABLE Genero (
+    GeneroID INT AUTO_INCREMENT PRIMARY KEY,
+    NomeGenero VARCHAR(50) NOT NULL,
+    UNIQUE (NomeGenero)
+) ENGINE=InnoDB;
+
+-- Tabela: Endereço
+-- Gerencia endereços dos clientes
+CREATE TABLE Endereco (
+    EnderecoID INT AUTO_INCREMENT PRIMARY KEY,
+    CEP VARCHAR(10) NOT NULL,
+    Rua VARCHAR(100) NOT NULL,
+    Numero VARCHAR(10) NOT NULL,
+    Bairro VARCHAR(50) NOT NULL,
+    Cidade VARCHAR(50) NOT NULL,
+    Estado VARCHAR(2) NOT NULL,
+    Complemento VARCHAR(50)
+) ENGINE=InnoDB;
+
+-- Tabela: Cliente
+-- Gerencia os clientes da biblioteca
+CREATE TABLE Cliente (
+    ClienteID INT auto_increment PRIMARY KEY,
+    Nome VARCHAR(50) NOT NULL,
+    Sobrenome VARCHAR(50) NOT NULL,
+    CPF VARCHAR(14) NOT NULL,
+    DataNascimento DATE NOT NULL,
+    DataAfiliacao DATE NOT NULL,
+    QuantidadeLivrosReservados INT DEFAULT 0 CHECK (QuantidadeLivrosReservados >= 0),
+    QuantidadePendencias INT DEFAULT 0 CHECK (QuantidadePendencias >= 0),
+    EnderecoID INT NOT NULL,
+    UNIQUE (CPF),
+    CONSTRAINT fk_cliente_endereco FOREIGN KEY (EnderecoID) 
+        REFERENCES Endereco(EnderecoID) 
+        ON DELETE RESTRICT 
+        ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- Tabela: Livro
+-- Gerencia os livros disponíveis
+CREATE TABLE Livro (
+    LivroID INT AUTO_INCREMENT PRIMARY KEY,
+    Autor VARCHAR(100) NOT NULL,
+    NomeLivro VARCHAR(200) NOT NULL,
+    GeneroID INT AUTO_INCREMENT NOT NULL,
+    Idioma VARCHAR(50) NOT NULL,
+    QuantidadePaginas INT NOT NULL CHECK (QuantidadePaginas > 0),
+    Editora VARCHAR(100) NOT NULL,
+    DataPublicacao DATE NOT NULL,
+    QuantidadeDisponivel INT NOT NULL CHECK (QuantidadeDisponivel >= 0),
+    CONSTRAINT fk_livro_genero FOREIGN KEY (GeneroID) 
+        REFERENCES Genero(GeneroID) 
+        ON DELETE RESTRICT 
+        ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- Tabela: Fornecedor
+-- Gerencia os fornecedores de livros
+CREATE TABLE Fornecedor (
+    FornecedorID INT AUTO_INCREMENT PRIMARY KEY,
+    NomeEmpresa VARCHAR(100) NOT NULL,
+    CNPJ VARCHAR(18) NOT NULL,
+    QuantidadeFornecida INT DEFAULT 0 CHECK (QuantidadeFornecida >= 0),
+    UltimaDataEntrega DATE,
+    Endereco VARCHAR(200) NOT NULL,
+    UltimoColaborador VARCHAR(100),
+    Contato VARCHAR(100),
+    UNIQUE (CNPJ)
+) ENGINE=InnoDB;
+
+-- Tabela: Reserva
+-- Gerencia as reservas de livros
+CREATE TABLE Reserva (
+    ReservaID INT AUTO_INCREMENT PRIMARY KEY,
+    ClienteID INT NOT NULL,
+    LivroID INT NOT NULL,
+    DataRetirada DATE NOT NULL,
+    DataPrevistaEntrega DATE NOT NULL,
+    DataEntrega DATE,
+    FormaRetirada VARCHAR(50) NOT NULL,
+    QuantidadeReservada INT NOT NULL CHECK (QuantidadeReservada > 0),
+    CONSTRAINT fk_reserva_cliente FOREIGN KEY (ClienteID) 
+        REFERENCES Cliente(ClienteID) 
+        ON DELETE RESTRICT 
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_reserva_livro FOREIGN KEY (LivroID) 
+        REFERENCES Livro(LivroID) 
+        ON DELETE RESTRICT 
+        ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- Tabela: Pendência
+-- Gerencia pendências dos clientes
+CREATE TABLE Pendencia (
+    PendenciaID INT AUTO_INCREMENT PRIMARY KEY,
+    ClienteID INT NOT NULL,
+    ReservaID INT NOT NULL,
+    Descricao VARCHAR(200) NOT NULL,
+    DataPendencia DATE NOT NULL,
+    Resolvida BOOLEAN DEFAULT FALSE,
+    CONSTRAINT fk_pendencia_cliente FOREIGN KEY (ClienteID) 
+        REFERENCES Cliente(ClienteID) 
+        ON DELETE RESTRICT 
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_pendencia_reserva FOREIGN KEY (ReservaID) 
+        REFERENCES Reserva(ReservaID) 
+        ON DELETE RESTRICT 
+        ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- Tabela: Estoque
+-- Gerencia entradas de livros no estoque
+CREATE TABLE Estoque (
+    EstoqueID INT AUTO_INCREMENT PRIMARY KEY,
+    LivroID INT NOT NULL,
+    FornecedorID INT NOT NULL,
+    Quantidade INT NOT NULL CHECK (Quantidade > 0),
+    DataEntrada DATE NOT NULL,
+    CONSTRAINT fk_estoque_livro FOREIGN KEY (LivroID) 
+        REFERENCES Livro(LivroID) 
+        ON DELETE RESTRICT 
+        ON UPDATE CASCADE,
+    CONSTRAINT fk_estoque_fornecedor FOREIGN KEY (FornecedorID) 
+        REFERENCES Fornecedor(FornecedorID) 
+        ON DELETE RESTRICT 
+        ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- Tabela: Multa
+-- Gerencia multas associadas a pendências
+CREATE TABLE Multa (
+    MultaID INT AUTO_INCREMENT PRIMARY KEY,
+    PendenciaID INT NOT NULL,
+    Valor DECIMAL(10,2) NOT NULL CHECK (Valor > 0),
+    DataEmissao DATE NOT NULL,
+    DataPagamento DATE,
+    Status VARCHAR(20) NOT NULL DEFAULT 'Pendente',
+    CONSTRAINT fk_multa_pendencia FOREIGN KEY (PendenciaID) 
+        REFERENCES Pendencia(PendenciaID) 
+        ON DELETE RESTRICT 
+        ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- Índices para otimizar consultas
+CREATE INDEX idx_cliente_cpf ON Cliente(CPF);
+CREATE INDEX idx_livro_nome ON Livro(NomeLivro);
+CREATE INDEX idx_reserva_data_retirada ON Reserva(DataRetirada);
+CREATE INDEX idx_pendencia_data ON Pendencia(DataPendencia);
+CREATE INDEX idx_estoque_data_entrada ON Estoque(DataEntrada);
+CREATE INDEX idx_multa_data_emissao ON Multa(DataEmissao);
+
+ALTER TABLE livro MODIFY COLUMN GeneroID int auto_increment;
+
+describe livro
