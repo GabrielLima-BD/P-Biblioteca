@@ -5,8 +5,6 @@ from datetime import datetime
 
 import requests
 
-url = "http://localhost:3000/cliente"
-
 
 after_ids = []  # Lista para armazenar os IDs de after
 # Lista dos gêneros disponíveis
@@ -27,7 +25,9 @@ Generos = [
     (14, 'Infantil'),
     (15, 'Didático')
 ]
-class CustomCTk(ctk.CTk):# Classe base para janelas que sobrescreve destroy
+
+
+class CustomCTk(ctk.CTk):  # Classe base para janelas que sobrescreve destroy
     def destroy(self):
         global after_ids
         for id in after_ids:
@@ -36,12 +36,12 @@ class CustomCTk(ctk.CTk):# Classe base para janelas que sobrescreve destroy
             except:
                 pass
         after_ids.clear()
-        super().destroy()               
+        super().destroy()
 
 
 # ____________________________________Janelas Python_________________________________________ #
 
-def tela1(): # Tela Inical para o Funcionario
+def tela1():  # Tela Inical para o Funcionario
 
     tela1 = CustomCTk(fg_color="#3C4C34")
     tela1.title("Inicio")
@@ -75,14 +75,15 @@ def tela1(): # Tela Inical para o Funcionario
 
     tela1.mainloop()
 
-def voltar_tela1(tela_atual): # Função para voltar a tela inicial
+
+def voltar_tela1(tela_atual):  # Função para voltar a tela inicial
     tela_atual.destroy()
     tela1()
 
 # _____________________________________CONSULTAS_____________________________________________ #
 
 
-def pri_consulta(tela1): # Tela de consulta
+def pri_consulta(tela1):  # Tela de consulta
     tela1.destroy()
     telaConsulta = CustomCTk()
     telaConsulta.title("Consulta")
@@ -97,7 +98,7 @@ def pri_consulta(tela1): # Tela de consulta
 # __________________________________CADASTROS________________________________________________ #
 
 
-def pri_cadastro(tela1): # Tela Primaria de Cadastro, escolhendo o que cadastrar
+def pri_cadastro(tela1):  # Tela Primaria de Cadastro, escolhendo o que cadastrar
     tela1.destroy()
     telaCadastro = CustomCTk(fg_color="#6D7B74")
     telaCadastro.title("Cadastro")
@@ -125,7 +126,8 @@ def pri_cadastro(tela1): # Tela Primaria de Cadastro, escolhendo o que cadastrar
 
     telaCadastro.mainloop()
 
-def sec_cadastroLivro(telaCadastro): # Tela de Cadastro do Livro
+
+def sec_cadastroLivro(telaCadastro):  # Tela de Cadastro do Livro
 
     # Fecha a tela anterior
     telaCadastro.destroy()
@@ -242,12 +244,13 @@ def sec_cadastroLivro(telaCadastro): # Tela de Cadastro do Livro
 
     telaCadastroLivro.mainloop()
 
-def sec_cadastroUsuario(telaCadastro): # Tela de Cadastro do Usuario
+
+def sec_cadastroUsuario(telaCadastro):  # Tela de Cadastro do Usuario
     telaCadastro.destroy()
     telacadastroUsuario = CustomCTk(fg_color="#4A5C63")
     telacadastroUsuario.title("Cadastro")
     telacadastroUsuario.geometry("720x480")
-    
+
     def cadastro_usuario():
         dados = {
             "Nome": entry_nome.get(),
@@ -263,17 +266,20 @@ def sec_cadastroUsuario(telaCadastro): # Tela de Cadastro do Usuario
             "Estado": entry_estado.get(),
             "Complemento": entry_complemento.get()
         }
-        
-        try:
-            resposta = requests.post("http://localhost:3000/cliente", json=dados)
-            if resposta.status_code == 201 or resposta.status_code == 200:
-                messagebox.showinfo("Sucesso", "Usuário cadastrado com sucesso!")
-            else:
-                messagebox.showerror("Erro", f"Erro ao cadastrar: {resposta.status_code}")
-        except Exception as e:
-            messagebox.showerror("Erro", f"Erro ao conectar com a API:\n{str(e)}")
 
-    
+        try:
+            resposta = requests.post(
+                "http://localhost:3000/cliente", json=dados)
+            if resposta.status_code == 201 or resposta.status_code == 200:
+                messagebox.showinfo(
+                    "Sucesso", "Usuário cadastrado com sucesso!")
+            else:
+                messagebox.showerror(
+                    "Erro", f"Erro ao cadastrar: {resposta.status_code}")
+        except Exception as e:
+            messagebox.showerror(
+                "Erro", f"Erro ao conectar com a API:\n{str(e)}")
+
     data_nascimento_var = tk.StringVar(master=telacadastroUsuario)
     data_afiliacao_var = tk.StringVar(master=telacadastroUsuario)
 
@@ -320,29 +326,35 @@ def sec_cadastroUsuario(telaCadastro): # Tela de Cadastro do Usuario
     entry_sobrenome.place(y=80, x=230)
 
     # CpF do usuario
-    Cpf = ctk.CTkLabel(telacadastroUsuario,text="Digite o CPF:")
+    Cpf = ctk.CTkLabel(telacadastroUsuario, text="Digite o CPF:")
     Cpf.place(y=110, x=145)
-    entry_cpf = ctk.CTkEntry(telacadastroUsuario, validate="key", validatecommand=(validacao_cmd, "%P"), width=120, height=15)
+    entry_cpf = ctk.CTkEntry(telacadastroUsuario, validate="key", validatecommand=(
+        validacao_cmd, "%P"), width=120, height=15)
     entry_cpf.place(y=110, x=230)
 
     # Data de Nascimento do usuario
-    DataNascimento = ctk.CTkLabel(telacadastroUsuario, text="Digite a Data de Nascimento:")
+    DataNascimento = ctk.CTkLabel(
+        telacadastroUsuario, text="Digite a Data de Nascimento:")
     DataNascimento.place(y=140, x=53)
-    entry_datanascimento = ctk.CTkEntry(telacadastroUsuario, textvariable=data_nascimento_var, placeholder_text="DD/MM/AAAA", width=85, height=15, justify="center")
+    entry_datanascimento = ctk.CTkEntry(telacadastroUsuario, textvariable=data_nascimento_var,
+                                        placeholder_text="DD/MM/AAAA", width=85, height=15, justify="center")
     entry_datanascimento.place(y=140, x=230)
     entry_datanascimento._entry.bind("<FocusOut>", formatar_data)
 
     # Data que o usurao foi afiliado a biblioteca
-    DataAfiliacao = ctk.CTkLabel(telacadastroUsuario, text="Digite a Data de Afiliação:")
+    DataAfiliacao = ctk.CTkLabel(
+        telacadastroUsuario, text="Digite a Data de Afiliação:")
     DataAfiliacao.place(y=170, x=70)
-    entry_dataafiliacao = ctk.CTkEntry(telacadastroUsuario, textvariable=data_afiliacao_var,placeholder_text="DD/MM/AAAA", width=85, height=15, justify="center")
+    entry_dataafiliacao = ctk.CTkEntry(telacadastroUsuario, textvariable=data_afiliacao_var,
+                                       placeholder_text="DD/MM/AAAA", width=85, height=15, justify="center")
     entry_dataafiliacao.place(y=170, x=230)
     entry_dataafiliacao._entry.bind("<FocusOut>", formatar_data)
-    
+
     # Cep do usuario
-    Cep = ctk.CTkLabel(telacadastroUsuario,text="Digite o Cep:")
+    Cep = ctk.CTkLabel(telacadastroUsuario, text="Digite o Cep:")
     Cep.place(y=200, x=147)
-    entry_cep = ctk.CTkEntry(telacadastroUsuario, validate="key", validatecommand=(validacao_cmd, "%P"), width=100, height=15, justify="center")
+    entry_cep = ctk.CTkEntry(telacadastroUsuario, validate="key", validatecommand=(
+        validacao_cmd, "%P"), width=100, height=15, justify="center")
     entry_cep.place(y=200, x=230)
 
     # Rua do usuario
@@ -350,25 +362,26 @@ def sec_cadastroUsuario(telaCadastro): # Tela de Cadastro do Usuario
     Rua.place(y=230, x=147)
     entry_rua = ctk.CTkEntry(telacadastroUsuario, width=250, height=15)
     entry_rua.place(y=230, x=230)
-    
+
     # Numero da casa do usuario
-    Numero = ctk.CTkLabel(telacadastroUsuario, text="Digite o Número:") 
+    Numero = ctk.CTkLabel(telacadastroUsuario, text="Digite o Número:")
     Numero.place(y=260, x=125)
-    entry_numero = ctk.CTkEntry(telacadastroUsuario, validate="key", validatecommand=(validacao_cmd, "%P"), width=60, height=15, justify="center")
+    entry_numero = ctk.CTkEntry(telacadastroUsuario, validate="key", validatecommand=(
+        validacao_cmd, "%P"), width=60, height=15, justify="center")
     entry_numero.place(y=260, x=230)
-    
+
     # Bairro do usuario
     Bairro = ctk.CTkLabel(telacadastroUsuario, text="Digite o Bairro:")
     Bairro.place(y=290, x=135)
     entry_bairro = ctk.CTkEntry(telacadastroUsuario, width=250, height=15)
     entry_bairro.place(y=290, x=230)
-    
+
     # Cidade do usuario
     Cidade = ctk.CTkLabel(telacadastroUsuario, text="Digite a Cidade:")
     Cidade.place(y=320, x=130)
     entry_cidade = ctk.CTkEntry(telacadastroUsuario, width=250, height=15)
     entry_cidade.place(y=320, x=230)
-    
+
     # Estado do usuario
     Estado = ctk.CTkLabel(telacadastroUsuario, text="Digite o Estado:")
     Estado.place(y=350, x=130)
@@ -376,22 +389,25 @@ def sec_cadastroUsuario(telaCadastro): # Tela de Cadastro do Usuario
     entry_estado.place(y=350, x=230)
 
     # Complemento da casa do usuario
-    Complemento = ctk.CTkLabel(telacadastroUsuario, text="Digite o Complemento ( Se Tiver):")
+    Complemento = ctk.CTkLabel(
+        telacadastroUsuario, text="Digite o Complemento ( Se Tiver):")
     Complemento.place(y=380, x=30)
     entry_complemento = ctk.CTkEntry(telacadastroUsuario, width=250, height=15)
     entry_complemento.place(y=380, x=230)
 
-     # Botao onde Cadastra o Usuario
-    cad_usuario = ctk.CTkButton(telacadastroUsuario, text="Cadastrar", command=cadastro_usuario)
+    # Botao onde Cadastra o Usuario
+    cad_usuario = ctk.CTkButton(
+        telacadastroUsuario, text="Cadastrar", command=cadastro_usuario)
     cad_usuario.place(y=425, x=200)
 
-
     # Botao de Voltar a twla anterior
-    btVoltar = ctk.CTkButton(telacadastroUsuario, text="Voltar ao Menu Anterior", fg_color="#4A5C63",hover_color="#3C474D", command=lambda: voltar_tela1(telacadastroUsuario), font=("Arial", 14, "underline"))
+    btVoltar = ctk.CTkButton(telacadastroUsuario, text="Voltar ao Menu Anterior", fg_color="#4A5C63",
+                             hover_color="#3C474D", command=lambda: voltar_tela1(telacadastroUsuario), font=("Arial", 14, "underline"))
     btVoltar.place(y=15, x=15)
 
     # Botao para fechar a tela atual
-    btfechar = ctk.CTkButton(telacadastroUsuario, text="Fechar", fg_color="black",hover_color="#8B2F2F", command=telacadastroUsuario.destroy)
+    btfechar = ctk.CTkButton(telacadastroUsuario, text="Fechar", fg_color="black",
+                             hover_color="#8B2F2F", command=telacadastroUsuario.destroy)
     btfechar.place(y=425, x=360)
 
     telacadastroUsuario.mainloop()
@@ -399,7 +415,7 @@ def sec_cadastroUsuario(telaCadastro): # Tela de Cadastro do Usuario
 # __________________________________RESERVAS_________________________________________________ #
 
 
-def pri_reserva(tela1): # Tela Primaria de Reservas, escolhendo o que fazer
+def pri_reserva(tela1):  # Tela Primaria de Reservas, escolhendo o que fazer
     tela1.destroy()
     telaReservas = CustomCTk(fg_color="#B89778")
     telaReservas.title("reservas")
@@ -428,16 +444,40 @@ def pri_reserva(tela1): # Tela Primaria de Reservas, escolhendo o que fazer
     telaReservas.mainloop()
 
 
-def sec_nova_reserva(reserva): # Tela de Nova Reserva
+def sec_nova_reserva(reserva):  # Tela de Nova Reserva
     reserva.destroy()
     telaNovaReserva = CustomCTk(fg_color="#2B2B2B")
     telaNovaReserva.title("Nova Reserva")
     telaNovaReserva.geometry("720x480")
 
+    def cadastro_novareserva():
+        dados = {
+            "CPFReserva": entry_cpfreserva.get(),
+            "NomeLivro": entry_nomelivro.get(),
+            "QntdLivro": entry_qntdlivro.get(),
+            "DataRetirada": entry_dataretirada.get(),
+            "DataVolta": entry_datavolta.get(),
+            "Entrega": entry_retirada.get(),
+            "Observacao": entry_observacao.get() 
+        }
+
+        try:
+            resposta = requests.post(
+                "http://localhost:3000/reservas", json=dados)
+            if resposta.status_code == 201 or resposta.status_code == 200:
+                messagebox.showinfo(
+                    "Sucesso", "Reserva cadastrada com sucesso!")
+            else:
+                messagebox.showerror(
+                    "Erro", f"Erro ao cadastrar: {resposta.status_code}")
+        except Exception as e:
+            messagebox.showerror(
+                "Erro", f"Erro ao conectar com a API:\n{str(e)}")
+
+
     data_retirada_var = tk.StringVar(master=telaNovaReserva)
     data_volta_var = tk.StringVar(master=telaNovaReserva)
-    
-    
+
     def formatar_data(event):
         entrada = event.widget
         valor = entrada.get()
@@ -466,48 +506,53 @@ def sec_nova_reserva(reserva): # Tela de Nova Reserva
 
     validacao_cmd = telaNovaReserva.register(somente_inteiros)
 
-    # Nome da Reserva
-    NomeReserva = ctk.CTkLabel(telaNovaReserva, text="Nome da Reserva:")
-    NomeReserva.place(y=100, x=120)
-    entry_nomereserva = ctk.CTkEntry(telaNovaReserva, width=400, height=15)
-    entry_nomereserva.place(y=100, x=230)
-
-    #CPF do usuario que vai ficar reservado
+    # CPF do usuario que vai ficar reservado
     CpfReserva = ctk.CTkLabel(telaNovaReserva, text="Digite o CPF:")
-    CpfReserva.place(y=130, x=120)
+    CpfReserva.place(y=100, x=120)
     entry_cpfreserva = ctk.CTkEntry(telaNovaReserva, width=400, height=15)
-    entry_cpfreserva.place(y=130, x=230)
+    entry_cpfreserva.place(y=100, x=230)
 
     # Nome do Livro que vai ser reservado
     Nomelivro = ctk.CTkLabel(telaNovaReserva, text="Digite o Nome do Livro:")
-    Nomelivro.place(y=160, x=90)
+    Nomelivro.place(y=130, x=90)
     entry_nomelivro = ctk.CTkEntry(telaNovaReserva, width=400, height=15)
-    entry_nomelivro.place(y=160, x=230)
-    
+    entry_nomelivro.place(y=130, x=230)
+
     # Qunantidade que vai ser reservada
     qntdLivros = ctk.CTkLabel(telaNovaReserva, text="Digite a Quantidade:")
-    qntdLivros.place(y=190, x=105)
-    entry_qntdlivro = ctk.CTkEntry(telaNovaReserva, validate="key", validatecommand=(validacao_cmd, "%P"), width=60, height=15, justify="center")
-    entry_qntdlivro.place(y=190, x=230)
+    qntdLivros.place(y=160, x=105)
+    entry_qntdlivro = ctk.CTkEntry(telaNovaReserva, validate="key", validatecommand=(
+        validacao_cmd, "%P"), width=60, height=15, justify="center")
+    entry_qntdlivro.place(y=160, x=230)
 
     # Data que esta sendo retirada o livro
-    dataRetirada = ctk.CTkLabel(telaNovaReserva, text="Digite a Data da Retirada:")
-    dataRetirada.place(y=220, x=77)
-    entry_dataretirada = ctk.CTkEntry(telaNovaReserva, textvariable=data_retirada_var,placeholder_text="DD/MM/AAAA", width=85, height=15, justify="center")
-    entry_dataretirada.place(y=220, x=230)
+    dataRetirada = ctk.CTkLabel(
+        telaNovaReserva, text="Digite a Data da Retirada:")
+    dataRetirada.place(y=190, x=77)
+    entry_dataretirada = ctk.CTkEntry(telaNovaReserva, textvariable=data_retirada_var,
+                                      placeholder_text="DD/MM/AAAA", width=85, height=15, justify="center")
+    entry_dataretirada.place(y=190, x=230)
     entry_dataretirada._entry.bind("<FocusOut>", formatar_data)
 
     # Data prevista para que o Livro for devolvido
-    dataVolta = ctk.CTkLabel(telaNovaReserva, text="Digite a Data Prevista para Volta:")
-    dataVolta.place(y=250, x=35)
-    entry_datavolta = ctk.CTkEntry(telaNovaReserva, textvariable=data_volta_var,placeholder_text="DD/MM/AAAA", width=85, height=15, justify="center")
-    entry_datavolta.place(y=250, x=230)
+    dataVolta = ctk.CTkLabel(
+        telaNovaReserva, text="Digite a Data Prevista para Volta:")
+    dataVolta.place(y=220, x=35)
+    entry_datavolta = ctk.CTkEntry(telaNovaReserva, textvariable=data_volta_var,
+                                   placeholder_text="DD/MM/AAAA", width=85, height=15, justify="center")
+    entry_datavolta.place(y=220, x=230)
     entry_datavolta._entry.bind("<FocusOut>", formatar_data)
-    
+
     entrega = ctk.CTkLabel(telaNovaReserva, text="Digite a forma de retirada:")
-    entrega.place(y=280, x=75)
+    entrega.place(y=250, x=75)
     entry_retirada = ctk.CTkEntry(telaNovaReserva, width=100, height=15)
-    entry_retirada.place(y=280, x=230)
+    entry_retirada.place(y=250, x=230)
+    
+    # OBS 
+    observacao = ctk.CTkLabel(telaNovaReserva, text="Observaçãa da Reserva:")
+    observacao.place(y=280, x=115)
+    entry_observacao = ctk.CTkEntry(telaNovaReserva, width=400, height=15)
+    entry_observacao.place(y=280, x=230)
 
     btVoltar = ctk.CTkButton(telaNovaReserva, text="Voltar ao Menu Anterior", fg_color="#2B2B2B",
                              hover_color="#121212", command=lambda: pri_reserva(telaNovaReserva), font=("Arial", 14, "underline"))
@@ -516,8 +561,9 @@ def sec_nova_reserva(reserva): # Tela de Nova Reserva
     btfechar = ctk.CTkButton(telaNovaReserva, text="Fechar", fg_color="black",
                              hover_color="#8B2F2F", command=telaNovaReserva.destroy)
     btfechar.place(y=430, x=280)
-    
-    btReservar = ctk.CTkButton(telaNovaReserva,text="Reservar",fg_color="#1E5128",hover_color="#4E9F3D")
+
+    btReservar = ctk.CTkButton(
+        telaNovaReserva, text="Reservar", fg_color="#1E5128", hover_color="#4E9F3D", command= cadastro_novareserva)
     btReservar.place(y=430, x=400)
 
     telaNovaReserva.mainloop()
@@ -525,7 +571,7 @@ def sec_nova_reserva(reserva): # Tela de Nova Reserva
 # ______________________________________EXCLUSÃO______________________________________________ #
 
 
-def pri_exclusao(tela1): # Tela Primaria de Exclusão, escolhendo o que fazer
+def pri_exclusao(tela1):  # Tela Primaria de Exclusão, escolhendo o que fazer
     tela1.destroy()
     telaExclusão = CustomCTk()
     telaExclusão.title("Exclusão de Livros")
