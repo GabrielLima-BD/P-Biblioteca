@@ -30,26 +30,134 @@ function formatarData(data) {
     return dataFormatada;
 }
 
-// Rota para buscar clientes
+
+//____________________________ROTAS___________________________//
+
+
+// Rota para buscar clientes por nome
 app.get('/cliente', async (req, res) => {
     try {
+        const { Nome } = req.query;
+
+        if (!Nome) {
+            return res.status(400).json({ message: 'O campo Nome é obrigatório' });
+        }
+
         const { data, error } = await supabase
             .from('cliente')
-            .select('*');
+            .select('*, endereco(*)')
+            .ilike('Nome', `%${Nome.trim()}%`);
 
         if (error) {
-            console.error('Erro ao buscar clientes:', error);
-            throw error;
+            console.error('Erro ao buscar cliente:', error);
+            return res.status(500).json({ message: 'Erro ao buscar cliente', error: error.message });
         }
 
-        if (!data || data.length === 0) {
-            return res.status(404).json({ message: 'Nenhum cliente encontrado' });
-        }
-
-        res.status(200).json({ message: 'Clientes encontrados com sucesso', data });
+        return res.status(200).json({ message: 'Cliente(s) encontrados com sucesso', data });
     } catch (error) {
-        console.error('Erro ao buscar clientes:', error);
-        res.status(500).json({ message: 'Erro ao buscar clientes', error: error.message });
+        console.error('Erro inesperado:', error);
+        return res.status(500).json({ message: 'Erro inesperado ao buscar cliente', error: error.message });
+    }
+});
+
+
+// Rota para cadastrar um cliente
+app.post('/cliente', async (req, res) => {
+    try {
+        console.log('Dados de Cadastro de Usuario e Endereço recebidos do Python:', JSON.stringify(req.body, null, 2));
+
+        // dados recebidos pelo python
+        const {
+            CEP, Rua, Numero, Bairro, Cidade, Estado, Complemento,
+            Nome, Sobrenome, CPF, DataNascimento, DataAfiliacao
+        } = req.body;
+
+        // Validação dos campos obrigatórios
+        if (!CEP || !Rua || !Numero || !Bairro || !Cidade || !Estado ||
+            !Nome || !Sobrenome || !CPF || !DataNascimento || !DataAfiliacao) {
+            return res.status(400).json({ message: 'Todos os campos são obrigatórios' });
+        }
+        // formata as datas para a inserção ao banco
+        const dataNascimentoFormatada = formatarData(DataNascimento);
+        const dataAfiliacaoFormatada = formatarData(DataAfiliacao);
+
+        // Verificar se as datas foram formatadas corretamente
+        if (dataNascimentoFormatada === DataNascimento || dataAfiliacaoFormatada === DataAfiliacao) {
+            console.log('Erro: Datas não foram formatadas:', { DataNascimento, DataAfiliacao });
+            return res.status(400).json({ message: 'Formato de data inválido. Use DD/MM/YYYY.' });
+        }
+
+        // Dados para inserção
+        const dadosFormatados = {
+            CEP, Rua, Numero, Bairro, Cidade, Estado, 
+            Complemento, Nome, Sobrenome, CPF,
+            DataNascimento: dataNascimentoFormatada,
+            DataAfiliacao: dataAfiliacaoFormatada
+        };
+
+        console.log('Dados formatados para inserção:', JSON.stringify(dadosFormatados, null, 2));
+
+        // Inserir endereço e obter EnderecoID
+        const { data: enderecoData, error: enderecoError } = await supabase
+            .from('endereco')
+            .insert([{
+                CEP: dadosFormatados.CEP,
+                Rua: dadosFormatados.Rua,
+                Numero: dadosFormatados.Numero,
+                Bairro: dadosFormatados.Bairro,
+                Cidade: dadosFormatados.Cidade,
+                Estado: dadosFormatados.Estado,
+                Complemento: dadosFormatados.Complemento
+            }])
+            .select('EnderecoID')
+            .single();
+
+        if (enderecoError) {
+            console.error('Erro ao cadastrar endereço:', enderecoError);
+            throw enderecoError;
+        }
+
+        console.log('Endereço cadastrado:', enderecoData);
+
+        const enderecoId = enderecoData.EnderecoID;
+
+        if (!enderecoId) {
+            console.log('Erro: EnderecoID não obtido');
+            return res.status(500).json({ message: 'Não foi possível obter o ID do endereço' });
+        }
+
+        // Inserir cliente com o EnderecoID
+        const clientedados = {
+            Nome: dadosFormatados.Nome,
+            Sobrenome: dadosFormatados.Sobrenome,
+            CPF: dadosFormatados.CPF,
+            DataNascimento: dadosFormatados.DataNascimento,
+            DataAfiliacao: dadosFormatados.DataAfiliacao,
+            EnderecoID: enderecoId
+        };
+
+        console.log('Dados do cliente para o Supabase:', JSON.stringify(clientedados, null, 2));
+
+        const { data: clienteData, error: clienteError } = await supabase
+            .from('cliente')
+            .insert([clientedados])
+            .select()
+            .single();
+
+        if (clienteError) {
+            console.error('Erro ao cadastrar cliente:', clienteError);
+            throw clienteError;
+        }
+
+        res.status(201).json({
+            message: 'Cliente e endereço cadastrados com sucesso',
+            cliente: clienteData,
+            endereco: enderecoData
+        });
+
+    } catch (error) {
+        console.error('Erro final:', error);
+        res.status(500).json({ message: 'Erro ao cadastrar cliente', error: error.message });
     }
 });
 
@@ -156,107 +264,7 @@ app.post('/reservas', async (req, res) => {
 });
 
 
-// Rota para cadastrar um cliente
-app.post('/cliente', async (req, res) => {
-    try {
-        console.log('Dados de Cadastro de Usuario e Endereço recebidos do Python:', JSON.stringify(req.body, null, 2));
-
-        // dados recebidos pelo python
-        const {
-            CEP, Rua, Numero, Bairro, Cidade, Estado, Complemento,
-            Nome, Sobrenome, CPF, DataNascimento, DataAfiliacao
-        } = req.body;
-
-        // Validação dos campos obrigatórios
-        if (!CEP || !Rua || !Numero || !Bairro || !Cidade || !Estado ||
-            !Nome || !Sobrenome || !CPF || !DataNascimento || !DataAfiliacao) {
-            return res.status(400).json({ message: 'Todos os campos são obrigatórios' });
-        }
-        // formata as datas para a inserção ao banco
-        const dataNascimentoFormatada = formatarData(DataNascimento);
-        const dataAfiliacaoFormatada = formatarData(DataAfiliacao);
-
-        // Verificar se as datas foram formatadas corretamente
-        if (dataNascimentoFormatada === DataNascimento || dataAfiliacaoFormatada === DataAfiliacao) {
-            console.log('Erro: Datas não foram formatadas:', { DataNascimento, DataAfiliacao });
-            return res.status(400).json({ message: 'Formato de data inválido. Use DD/MM/YYYY.' });
-        }
-
-        // Dados para inserção
-        const dadosFormatados = {
-            CEP, Rua, Numero, Bairro, Cidade, Estado, 
-            Complemento, Nome, Sobrenome, CPF,
-            DataNascimento: dataNascimentoFormatada,
-            DataAfiliacao: dataAfiliacaoFormatada
-        };
-
-        console.log('Dados formatados para inserção:', JSON.stringify(dadosFormatados, null, 2));
-
-        // Inserir endereço e obter EnderecoID
-        const { data: enderecoData, error: enderecoError } = await supabase
-            .from('endereco')
-            .insert([{
-                CEP: dadosFormatados.CEP,
-                Rua: dadosFormatados.Rua,
-                Numero: dadosFormatados.Numero,
-                Bairro: dadosFormatados.Bairro,
-                Cidade: dadosFormatados.Cidade,
-                Estado: dadosFormatados.Estado,
-                Complemento: dadosFormatados.Complemento
-            }])
-            .select('EnderecoID')
-            .single();
-
-        if (enderecoError) {
-            console.error('Erro ao cadastrar endereço:', enderecoError);
-            throw enderecoError;
-        }
-
-        console.log('Endereço cadastrado:', enderecoData);
-
-        const enderecoId = enderecoData.EnderecoID;
-
-        if (!enderecoId) {
-            console.log('Erro: EnderecoID não obtido');
-            return res.status(500).json({ message: 'Não foi possível obter o ID do endereço' });
-        }
-
-        // Inserir cliente com o EnderecoID
-        const clientedados = {
-            Nome: dadosFormatados.Nome,
-            Sobrenome: dadosFormatados.Sobrenome,
-            CPF: dadosFormatados.CPF,
-            DataNascimento: dadosFormatados.DataNascimento,
-            DataAfiliacao: dadosFormatados.DataAfiliacao,
-            EnderecoID: enderecoId
-        };
-
-        console.log('Dados do cliente para o Supabase:', JSON.stringify(clientedados, null, 2));
-
-        const { data: clienteData, error: clienteError } = await supabase
-            .from('cliente')
-            .insert([clientedados])
-            .select()
-            .single();
-
-        if (clienteError) {
-            console.error('Erro ao cadastrar cliente:', clienteError);
-            throw clienteError;
-        }
-
-        res.status(201).json({
-            message: 'Cliente e endereço cadastrados com sucesso',
-            cliente: clienteData,
-            endereco: enderecoData
-        });
-
-    } catch (error) {
-        console.error('Erro final:', error);
-        res.status(500).json({ message: 'Erro ao cadastrar cliente', error: error.message });
-    }
-});
-
-
+//____________________________________________________________//
 app.listen(3000, () => {
     console.log('Servidor tá rodando, meu consagrado!');
 });
