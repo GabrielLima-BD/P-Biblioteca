@@ -15,7 +15,7 @@ Este é um projeto feito baseado em um sistema interno e externo de uma Bibliote
 Aplicação interna para os fucionarios terá 4 areas principas, sendo elas:
 
 1- Consulta, podendo consultar de 4 formar diferentes:
-    Consulta por Nome de Clinte | Consulta por Estado | Consulta por Nome de Livro Cadastrado | Consulta por Editora.
+    Consulta por Nome de Clinte | Consulta por Estado | Consulta por Nome de Livro Cadastrado | Consulta por Editora | Consulta por Genero dos Livros.
 
 2- Cadastro:
     Cadastro de Cliente, onde será cadastrado todos os dados pessoais e de endereço do mesmo.
