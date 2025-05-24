@@ -30,8 +30,9 @@ function formatarData(data) {
     return dataFormatada;
 }
 
-
 //____________________________ROTAS___________________________//
+
+//_________________ROTAS PARA AS CONSULTAS____________________//
 
 
 // Rota para buscar clientes por nome
@@ -60,6 +61,140 @@ app.get('/cliente', async (req, res) => {
     }
 });
 
+// Rota para buscar clientes por Estado
+app.get('/endereco', async (req, res) => {
+  try {
+    const { Estado } = req.query;
+    if (!Estado) return res.status(400).json({ message: 'O campo Estado é obrigatório' });
+
+    const { data, error } = await supabase
+      .from('cliente')
+      .select(`
+        Nome,
+        Sobrenome,
+        CPF,
+        DataNascimento,
+        DataAfiliacao,
+        QuantidadeLivrosReservados,
+        QuantidadePendencias,
+        endereco (
+          CEP,
+          Numero,
+          Bairro,
+          Cidade,
+          Estado,
+          Complemento
+        )
+      `);
+
+    if (error) {
+      console.error('Erro ao buscar clientes:', error);
+      return res.status(500).json({ message: 'Erro ao buscar clientes', error: error.message });
+    }
+
+    // Filtro manual no back-end para os Estados
+    const estadoAlvo = Estado.trim().toUpperCase();
+    const clientesFiltrados = data.filter(cliente => {
+      const estado = cliente.endereco?.Estado?.toUpperCase() || '';
+      return estado === estadoAlvo;
+    });
+
+    return res.status(200).json({ message: 'Clientes encontrados com sucesso', data: clientesFiltrados });
+  } catch (error) {
+    console.error('Erro inesperado:', error);
+    return res.status(500).json({ message: 'Erro inesperado ao buscar clientes', error: error.message });
+  }
+});
+
+// Rota para buscar por nome do livro
+app.get('/livro', async (req, res) => {
+    try {
+        const { NomeLivro } = req.query;
+
+        if (!NomeLivro) {
+            return res.status(400).json({ message: 'O campo Nome do Livro é obrigatório' });
+        }
+
+        const { data, error } = await supabase
+        .from('livro')
+        .select(`
+            Autor,
+            NomeLivro,
+            Idioma,
+            QuantidadePaginas,
+            Editora,
+            DataPublicacao,
+            QuantidadeDisponivel,
+            genero:GeneroID (
+            NomeGenero
+            )
+        `)
+        .ilike('NomeLivro', `%${NomeLivro.trim()}%`);
+
+
+
+        if (error) {
+            console.error('Erro ao buscar livro:', error);
+            return res.status(500).json({ message: 'Erro ao buscar livro', error: error.message });
+        }
+
+        if (!data || data.length === 0) {
+            return res.status(404).json({ message: 'Livro não encontrado' });
+        }
+
+        return res.status(200).json({ message: 'Livro(s) encontrado(s) com sucesso', data });
+
+    } catch (error) {
+        console.error('Erro inesperado:', error);
+        return res.status(500).json({ message: 'Erro inesperado ao buscar livro', error: error.message });
+    }
+});
+
+// Rota para buscar por nome do Autor
+app.get('/livro/autor', async (req, res) => {
+    try {
+        const { NomeAutor } = req.query;
+
+        if (!NomeAutor) {
+            return res.status(400).json({ message: 'O campo Nome do Autor é obrigatório' });
+        }
+
+        const { data, error } = await supabase
+        .from('livro')
+        .select(`
+            Autor,
+            NomeLivro,
+            Idioma,
+            QuantidadePaginas,
+            Editora,
+            DataPublicacao,
+            QuantidadeDisponivel,
+            genero:GeneroID (
+            NomeGenero
+            )
+        `)
+        .ilike('Autor', `%${NomeAutor.trim()}%`);
+
+
+
+        if (error) {
+            console.error('Erro ao buscar livro:', error);
+            return res.status(500).json({ message: 'Erro ao buscar Autor(a)', error: error.message });
+        }
+
+        if (!data || data.length === 0) {
+            return res.status(404).json({ message: 'Autor(a) não encontrado' });
+        }
+
+        return res.status(200).json({ message: 'Autor(a) encontrado(a) com sucesso', data });
+
+    } catch (error) {
+        console.error('Erro inesperado:', error);
+        return res.status(500).json({ message: 'Erro inesperado ao buscar Autor(a)', error: error.message });
+    }
+});
+
+//___________________ROTAS PARA CADASTRO______________________//
 
 // Rota para cadastrar um cliente
 app.post('/cliente', async (req, res) => {
@@ -265,6 +400,7 @@ app.post('/reservas', async (req, res) => {
 
 
 //____________________________________________________________//
+
 app.listen(3000, () => {
     console.log('Servidor tá rodando, meu consagrado!');
 });
