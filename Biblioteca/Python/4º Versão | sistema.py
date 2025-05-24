@@ -84,96 +84,109 @@ def voltar_tela1(tela_atual):  # Função para voltar a tela inicial
 
 
 def pri_consulta(tela1):  # Tela Pri das Consultas
-    
+
     tela1.destroy()
-    
+
     telaConsulta = CustomCTk(fg_color="#6D7B74")
     telaConsulta.title("Consulta")
     telaConsulta.geometry("250x420")
 
-    opcao = ctk.CTkLabel(telaConsulta, text="Escolha uma opção:", text_color="black")
+    opcao = ctk.CTkLabel(
+        telaConsulta, text="Escolha uma opção:", text_color="black")
     opcao.place(y=110, x=70)
 
-    btConsultaINomesuario = ctk.CTkButton(telaConsulta, text="Nome Usuario", fg_color="black",hover_color="#5F8D96", command=lambda: sec_consulta_nomeusuario(telaConsulta))
+    btConsultaINomesuario = ctk.CTkButton(telaConsulta, text="Nome Usuario", fg_color="black",
+                                          hover_color="#5F8D96", command=lambda: sec_consulta_nomeusuario(telaConsulta))
     btConsultaINomesuario.place(y=140, x=60)
 
-    btConsultaEstado = ctk.CTkButton(telaConsulta, text="Por Estado", fg_color="black",hover_color="#9CAD84")
+    btConsultaEstado = ctk.CTkButton(telaConsulta, text="Por Estado", fg_color="black",
+                                     hover_color="#9CAD84", command=lambda: sec_consulta_estado(telaConsulta))
     btConsultaEstado.place(y=170, x=60)
 
-    btConsultaNomeLivro = ctk.CTkButton(telaConsulta, text="Nome Livro", fg_color="black",hover_color="#B36A5E")
+    btConsultaNomeLivro = ctk.CTkButton(
+        telaConsulta, text="Nome Livro", fg_color="black", hover_color="#B36A5E", command=lambda: sec_consulta_nomelivro(telaConsulta))
     btConsultaNomeLivro.place(y=200, x=60)
 
-    btConsultaNomeAutor = ctk.CTkButton(telaConsulta, text="Nome Autor", fg_color="black",hover_color="#7C5E67")
+    btConsultaNomeAutor = ctk.CTkButton(
+        telaConsulta, text="Nome Autor", fg_color="black", hover_color="#7C5E67", command=lambda: sec_consulta_nomeAutor(telaConsulta))
     btConsultaNomeAutor.place(y=230, x=60)
 
-    btConsultaNomeLivro = ctk.CTkButton(telaConsulta, text="Por Genero", fg_color="black",hover_color="#ADA584")
+    btConsultaNomeLivro = ctk.CTkButton(
+        telaConsulta, text="Por Genero", fg_color="black", hover_color="#ADA584")
     btConsultaNomeLivro.place(y=260, x=60)
 
-
-    btVoltar = ctk.CTkButton(telaConsulta, text="Voltar ao Menu Anterior", text_color="black", fg_color="#6D7B74",hover_color="#55635C", command=lambda: voltar_tela1(telaConsulta), font=("Arial", 14, "underline"))
+    btVoltar = ctk.CTkButton(telaConsulta, text="Voltar ao Menu Anterior", text_color="black", fg_color="#6D7B74",
+                             hover_color="#55635C", command=lambda: voltar_tela1(telaConsulta), font=("Arial", 14, "underline"))
     btVoltar.place(y=5, x=5)
 
-    btSair = ctk.CTkButton(telaConsulta, text="Sair", fg_color="black",hover_color="#8B2F2F", command=telaConsulta.destroy)
+    btSair = ctk.CTkButton(telaConsulta, text="Sair", fg_color="black",
+                           hover_color="#8B2F2F", command=telaConsulta.destroy)
     btSair.place(y=380, x=105)
 
     telaConsulta.mainloop()
 
 def sec_consulta_nomeusuario(telaConsulta): # Tela Sec de Consulta aos Usuarios pelo nome
     telaConsulta.destroy()
-    
+
     telaConsultaUsuario = CustomCTk(fg_color="#6D7B74")
     telaConsultaUsuario.title("Consulta")
     telaConsultaUsuario.geometry("330x250")
-    
+
     # pega o Nome digitado e Busca atraves da API
     def procura_usuario():
-        nome_digitado = entry_nomeusuario.get().strip() 
+        nome_digitado = entry_nomeusuario.get().strip()
         if not nome_digitado:
             print("Digite um nome válido.")
             return
 
         try:
-            response = requests.get("http://localhost:3000/cliente", params={"Nome": nome_digitado})
+            response = requests.get(
+                "http://localhost:3000/cliente", params={"Nome": nome_digitado})
             response.raise_for_status()
             dados = response.json()
             # Extrai o array de clientes do JSON
             clientes = dados.get("data", [])
-            
+
             if clientes:
-                ter_resultadonome(clientes,telaConsultaUsuario)  # chama a função que mostra a tabela
+                # chama a função que mostra a tabela
+                ter_resultadonome(clientes, telaConsultaUsuario)
             else:
                 print("Nenhum cliente encontrado.")
         except requests.exceptions.RequestException as e:
             print("Erro ao buscar usuário:", e)
 
-    NomeUsuario = ctk.CTkLabel(telaConsultaUsuario, text="Digite o Nome do Usuario que deseja Buscar")
+    NomeUsuario = ctk.CTkLabel(
+        telaConsultaUsuario, text="Digite o Nome do Usuario que deseja Buscar")
     NomeUsuario.place(y=65, x=40)
-    entry_nomeusuario = ctk.CTkEntry(telaConsultaUsuario, width=250, height=30, justify="center")
-    entry_nomeusuario.place(y=95, x=40)    
+    entry_nomeusuario = ctk.CTkEntry(
+        telaConsultaUsuario, width=250, height=30, justify="center")
+    entry_nomeusuario.place(y=95, x=40)
 
-    btProcurar = ctk.CTkButton(telaConsultaUsuario, text="Procurar", command=procura_usuario)
+    btProcurar = ctk.CTkButton(
+        telaConsultaUsuario, text="Procurar", command=procura_usuario)
     btProcurar.place(y=145, x=95)
 
     btVoltar = ctk.CTkButton(telaConsultaUsuario, text="Voltar ao Menu Anterior", text_color="black", fg_color="#6D7B74",
                              hover_color="#55635C", font=("Arial", 14, "underline"), command=lambda: voltar_tela1(telaConsultaUsuario))
     btVoltar.place(y=5, x=5)
 
-    btSair = ctk.CTkButton(telaConsultaUsuario, text="Sair", fg_color="black",hover_color="#8B2F2F", command=telaConsultaUsuario.destroy)
+    btSair = ctk.CTkButton(telaConsultaUsuario, text="Sair", fg_color="black",
+                           hover_color="#8B2F2F", command=telaConsultaUsuario.destroy)
     btSair.place(y=220, x=95)
-    
-    telaConsultaUsuario.mainloop()
 
-def ter_resultadonome(dados,telaConsultaUsuario): # Tela Ter onde mostra os dados do Usuario Puxado   
+    telaConsultaUsuario.mainloop()
+def ter_resultadonome(dados, telaConsultaUsuario): # Tela Ter onde mostra os dados do Usuario Puxado
+
     telaResultadoNome = ctk.CTkToplevel(fg_color="#000000")
     telaResultadoNome.title("Resultado da Busca")
     telaResultadoNome.geometry("750x420")
     telaResultadoNome.configure(bg="black")
-    telaResultadoNome.resizable(False, False) 
-    
+    telaResultadoNome.resizable(False, False)
+
     def voltar():
-        telaResultadoNome.destroy() 
-        telaConsultaUsuario()  
-    
+        telaResultadoNome.destroy()
+        telaConsultaUsuario()
+
     btVoltar = ctk.CTkButton(telaResultadoNome, text="Voltar ao Menu Anterior", text_color="white", fg_color="#000000",
                              hover_color="#575757", font=("Arial", 14, "underline"), command=voltar)
     btVoltar.place(y=10, x=10)
@@ -181,7 +194,7 @@ def ter_resultadonome(dados,telaConsultaUsuario): # Tela Ter onde mostra os dado
     # === Frame da tabela ===
     frame = tk.Frame(telaResultadoNome, bg="black", width=900, height=450)
     frame.place(relx=0.5, rely=0.55, anchor="center")
-    frame.grid_propagate(False) 
+    frame.grid_propagate(False)
 
     # === Estilo visual ===
     style = ttk.Style()
@@ -254,7 +267,482 @@ def ter_resultadonome(dados,telaConsultaUsuario): # Tela Ter onde mostra os dado
             endereco["CEP"], endereco["Numero"], endereco["Bairro"], endereco["Cidade"],
             endereco["Estado"], endereco["Complemento"]
         )
-        tree.insert("", "end", values=valores, tags=('oddrow' if i % 2 == 0 else 'evenrow',))
+        tree.insert("", "end", values=valores, tags=(
+            'oddrow' if i % 2 == 0 else 'evenrow',))
+
+def sec_consulta_estado(telaConsulta): # Tela Sec de Consulta aos Usuarios pelo estado
+
+    telaConsulta.destroy()
+
+    telaConsultaEstado = CustomCTk(fg_color="#6D7B74")
+    telaConsultaEstado.title("Consulta")
+    telaConsultaEstado.geometry("330x250")
+
+    # pega o Nome digitado e Busca atraves da API
+    def procura_estado():
+        nome_estado = entry_nomeestado.get().strip()
+        if not nome_estado:
+            print("Digite um Estado válido.")
+            return
+
+        try:
+            response = requests.get(
+                "http://localhost:3000/endereco", params={"Estado": nome_estado})
+            response.raise_for_status()
+            dados = response.json()
+            # Extrai o array de clientes do JSON
+            clientes = dados.get("data", [])
+            print(dados)
+
+            if clientes:
+                # chama a função que mostra a tabela
+                ter_consultaestado(dados, telaConsultaEstado)
+            else:
+                print("Nenhum cliente encontrado.")
+        except requests.exceptions.RequestException as e:
+            print("Erro ao buscar usuário:", e)
+
+    NomeUsuario = ctk.CTkLabel(
+        telaConsultaEstado, text="Digite o Nome do Usuario que deseja Buscar")
+    NomeUsuario.place(y=65, x=40)
+    entry_nomeestado = ctk.CTkEntry(
+        telaConsultaEstado, width=250, height=30, justify="center")
+    entry_nomeestado.place(y=95, x=40)
+
+    btProcurar = ctk.CTkButton(
+        telaConsultaEstado, text="Procurar", command=procura_estado)
+    btProcurar.place(y=145, x=95)
+
+    btVoltar = ctk.CTkButton(telaConsultaEstado, text="Voltar ao Menu Anterior", text_color="black", fg_color="#6D7B74",
+                             hover_color="#55635C", font=("Arial", 14, "underline"), command=lambda: voltar_tela1(telaConsultaEstado))
+    btVoltar.place(y=5, x=5)
+
+    btSair = ctk.CTkButton(telaConsultaEstado, text="Sair", fg_color="black",
+                           hover_color="#8B2F2F", command=telaConsultaEstado.destroy)
+    btSair.place(y=220, x=95)
+
+    telaConsultaEstado.mainloop()
+def ter_consultaestado(dados, telaConsultaEstado): # Tela Ter onde mostra os dados do Usuario Puxado por estado
+
+    telaResultadoEstado = ctk.CTkToplevel(fg_color="#000000")
+    telaResultadoEstado.title("Resultado da Busca")
+    telaResultadoEstado.geometry("750x420")
+    telaResultadoEstado.configure(bg="black")
+    telaResultadoEstado.resizable(False, False)
+
+    def voltar():
+        telaResultadoEstado.destroy()
+        telaConsultaEstado()
+
+    btVoltar = ctk.CTkButton(telaResultadoEstado, text="Voltar ao Menu Anterior", text_color="white", fg_color="#000000",
+                             hover_color="#575757", font=("Arial", 14, "underline"), command=voltar)
+    btVoltar.place(y=10, x=10)
+
+    # === Frame da tabela ===
+    frame = tk.Frame(telaResultadoEstado, bg="black", width=900, height=450)
+    frame.place(relx=0.5, rely=0.55, anchor="center")
+    frame.grid_propagate(False)
+
+    # === Estilo visual ===
+    style = ttk.Style()
+    style.theme_use("clam")
+
+    style.configure("Treeview",
+                    font=("Arial", 12),
+                    background="black",
+                    foreground="white",
+                    fieldbackground="black",
+                    rowheight=30,
+                    borderwidth=1)
+
+    style.configure("Treeview.Heading",
+                    font=("Arial", 14, "bold"),
+                    background="#78368E",
+                    foreground="white",
+                    relief="flat")
+
+    style.map("Treeview",
+              background=[('selected', '#347083')],
+              foreground=[('selected', 'white')])
+
+    # === Scrollbars ===
+    tree_scroll_y = tk.Scrollbar(frame, orient="vertical")
+    tree_scroll_y.grid(row=0, column=1, sticky="ns")
+
+    tree_scroll_x = tk.Scrollbar(frame, orient="horizontal")
+    tree_scroll_x.grid(row=1, column=0, sticky="ew")
+
+    # === Colunas da Tabela ===
+    colunas = (
+        "Nome", "Sobrenome", "CPF", "DataNascimento", "DataAfiliacao",
+        "QntdLivrosReservados", "QntdPendencias", "CEP",
+        "Numero", "Bairro", "Cidade", "Estado", "Complemento"
+    )
+
+    tree = ttk.Treeview(
+        frame,
+        columns=colunas,
+        show="headings",
+        yscrollcommand=tree_scroll_y.set,
+        xscrollcommand=tree_scroll_x.set
+    )
+    tree.grid(row=0, column=0, sticky="nsew")
+
+    # === Conectar os scrollbars à tabela ===
+    tree_scroll_y.config(command=tree.yview)
+    tree_scroll_x.config(command=tree.xview)
+
+    # === Redimensionamento automático no grid ===
+    frame.grid_rowconfigure(0, weight=1)
+    frame.grid_columnconfigure(0, weight=1)
+
+    # === Configurações das colunas ===
+    for col in colunas:
+        tree.heading(col, text=col)
+        tree.column(col, anchor="center", width=120, stretch=True)
+
+    # === Linhas alternadas ===
+    tree.tag_configure('oddrow', background="#1a1a1a")
+    tree.tag_configure('evenrow', background="#2a2a2a")
+
+    clientes = dados['data']
+
+    # === Inserção de dados ===
+    for i, cliente in enumerate(clientes):
+        nome = cliente['Nome']
+        sobrenome = cliente['Sobrenome']
+        cpf = cliente['CPF']
+        data_nascimento = cliente['DataNascimento']
+        data_afiliacao = cliente['DataAfiliacao']
+        qnt_livros = cliente['QuantidadeLivrosReservados']
+        qnt_pendencias = cliente['QuantidadePendencias']
+
+        endereco = cliente.get("endereco")  # pode ser None
+
+        if endereco:
+            rua = endereco.get("Rua", "")
+            numero = endereco.get("Numero", "")
+            bairro = endereco.get("Bairro", "")
+            cidade = endereco.get("Cidade", "")
+            estado = endereco.get("Estado", "")
+            cep = endereco.get("CEP", "")
+            complemento = endereco.get("Complemento", "")
+        else:
+            rua = numero = bairro = cidade = estado = cep = complemento = ""
+
+        tree.insert("", "end", values=(
+            nome, sobrenome, cpf, data_nascimento, data_afiliacao,
+            qnt_livros, qnt_pendencias, cep, numero, rua, bairro,
+            cidade, estado, complemento
+        ), tags=('evenrow' if i % 2 == 0 else 'oddrow'))
+
+def sec_consulta_nomelivro(telaConsulta): # Tela Sec de Consulta aos livros
+    telaConsulta.destroy()
+
+    telaConsultaLivro = CustomCTk(fg_color="#6D7B74")
+    telaConsultaLivro.title("Consulta")
+    telaConsultaLivro.geometry("330x250")
+
+    # pega o Nome digitado e Busca atraves da API
+    def procura_livro():
+        livro_digitado = entry_nomelivro.get().strip()
+        if not livro_digitado:
+            print("Digite um livro válido.")
+            return
+
+        try:
+            response = requests.get(
+                "http://localhost:3000/livro", params={"NomeLivro": livro_digitado})
+            response.raise_for_status()
+            dados = response.json()
+            # Extrai o array de clientes do JSON
+            livro = dados.get("data", [])
+            print(livro)
+
+
+            if livro:
+                # chama a função que mostra a tabela
+                ter_resultadolivro(livro, telaConsultaLivro)
+            else:
+                print("Nenhum cliente encontrado.")
+        except requests.exceptions.RequestException as e:
+            print("Erro ao buscar livro:", e)
+
+    NomeLivro = ctk.CTkLabel(
+        telaConsultaLivro, text="Digite o Nome do Livro que deseja Buscar")
+    NomeLivro.place(y=65, x=40)
+    entry_nomelivro = ctk.CTkEntry(
+        telaConsultaLivro, width=250, height=30, justify="center")
+    entry_nomelivro.place(y=95, x=40)
+
+    btProcurar = ctk.CTkButton(
+        telaConsultaLivro, text="Procurar", command=procura_livro)
+    btProcurar.place(y=145, x=95)
+
+    btVoltar = ctk.CTkButton(telaConsultaLivro, text="Voltar ao Menu Anterior", text_color="black", fg_color="#6D7B74",
+                             hover_color="#55635C", font=("Arial", 14, "underline"), command=lambda: voltar_tela1(telaConsultaLivro))
+    btVoltar.place(y=5, x=5)
+
+    btSair = ctk.CTkButton(telaConsultaLivro, text="Sair", fg_color="black",
+                           hover_color="#8B2F2F", command=telaConsultaLivro.destroy)
+    btSair.place(y=220, x=95)
+
+    telaConsultaLivro.mainloop()
+def ter_resultadolivro(dados, telaConsultaLivro): # Tela Ter onde mostra os dados do livro
+    
+    telaResultadoLivro = ctk.CTkToplevel(fg_color="#000000")
+    telaResultadoLivro.title("Resultado da Busca")
+    telaResultadoLivro.geometry("750x420")
+    telaResultadoLivro.configure(bg="black")
+    telaResultadoLivro.resizable(False, False)
+
+    def voltar():
+        telaResultadoLivro.destroy()
+        telaConsultaLivro()
+
+    btVoltar = ctk.CTkButton(telaResultadoLivro, text="Voltar ao Menu Anterior", text_color="white", fg_color="#000000",
+                             hover_color="#575757", font=("Arial", 14, "underline"), command=voltar)
+    btVoltar.place(y=10, x=10)
+
+    # === Frame da tabela ===
+    frame = tk.Frame(telaResultadoLivro, bg="black", width=900, height=450)
+    frame.place(relx=0.5, rely=0.55, anchor="center")
+    frame.grid_propagate(False)
+
+    # === Estilo visual ===
+    style = ttk.Style()
+    style.theme_use("clam")
+
+    style.configure("Treeview",
+                    font=("Arial", 12),
+                    background="black",
+                    foreground="white",
+                    fieldbackground="black",
+                    rowheight=30,
+                    borderwidth=1)
+
+    style.configure("Treeview.Heading",
+                    font=("Arial", 14, "bold"),
+                    background="#78368E",
+                    foreground="white",
+                    relief="flat")
+
+    style.map("Treeview",
+              background=[('selected', '#347083')],
+              foreground=[('selected', 'white')])
+
+    # === Scrollbars ===
+    tree_scroll_y = tk.Scrollbar(frame, orient="vertical")
+    tree_scroll_y.grid(row=0, column=1, sticky="ns")
+
+    tree_scroll_x = tk.Scrollbar(frame, orient="horizontal")
+    tree_scroll_x.grid(row=1, column=0, sticky="ew")
+
+    # === Colunas da Tabela ===
+    colunas = (
+        "Autor", "NomeLivro", "Genero", "Idioma", "QntdPagina",
+        "Editora", "DataPublicacao", "QntdDisponivel"
+    )
+
+    tree = ttk.Treeview(
+        frame,
+        columns=colunas,
+        show="headings",
+        yscrollcommand=tree_scroll_y.set,
+        xscrollcommand=tree_scroll_x.set
+    )
+    tree.grid(row=0, column=0, sticky="nsew")
+
+    # === Conectar os scrollbars à tabela ===
+    tree_scroll_y.config(command=tree.yview)
+    tree_scroll_x.config(command=tree.xview)
+
+    # === Redimensionamento automático no grid ===
+    frame.grid_rowconfigure(0, weight=1)
+    frame.grid_columnconfigure(0, weight=1)
+
+    # === Configurações das colunas ===
+    for col in colunas:
+        tree.heading(col, text=col)
+        tree.column(col, anchor="center", width=120, stretch=True)
+
+    # === Linhas alternadas ===
+    tree.tag_configure('oddrow', background="#1a1a1a")
+    tree.tag_configure('evenrow', background="#2a2a2a")
+
+    livros = dados
+
+    # === Inserção de dados ===
+    for i, livro in enumerate(livros):
+        Autor = livro['Autor']
+        NomeLivro = livro['NomeLivro']
+        try:
+            Genero = livro['genero']['NomeGenero']
+        except:
+            Genero = 'Gênero não encontrado'
+        Idioma = livro['Idioma']
+        QntdPagina = livro['QuantidadePaginas']
+        Editora = livro['Editora']
+        DataPublicacao = livro['DataPublicacao']
+        QntdDisponivel = livro['QuantidadeDisponivel']
+
+        tree.insert("", "end", values=(
+            Autor, NomeLivro, Genero, Idioma, QntdPagina,
+            Editora, DataPublicacao, QntdDisponivel
+        ), tags=('evenrow' if i % 2 == 0 else 'oddrow'))
+
+def sec_consulta_nomeAutor(telaConsulta): # Tela Sec de Consulta aos Livros pelo Autor
+    telaConsulta.destroy()
+
+    telaConsultaAutor = CustomCTk(fg_color="#6D7B74")
+    telaConsultaAutor.title("Consulta")
+    telaConsultaAutor.geometry("330x250")
+
+    # pega o Nome digitado e Busca atraves da API
+    def procura_autor():
+        autor_digitado = entry_nomeAutor.get().strip()
+        if not autor_digitado:
+            print("Digite um autor válido.")
+            return
+
+        try:
+            url = f"http://localhost:3000//livro/autor?NomeAutor={autor_digitado}"
+            response = requests.get(url)
+            response.raise_for_status()
+            dados = response.json()
+            livro = dados.get("data", [])
+            print(livro)
+
+            if livro:
+                ter_resultadolivro(livro, telaConsultaAutor)
+            else:
+                print("Nenhum autor encontrado.")
+        except requests.exceptions.RequestException as e:
+            print("Erro ao buscar livro:", e)
+
+    NomeAutor = ctk.CTkLabel(
+        telaConsultaAutor, text="Digite o Nome do Autor que deseja Buscar")
+    NomeAutor.place(y=65, x=40)
+    entry_nomeAutor = ctk.CTkEntry(
+        telaConsultaAutor, width=250, height=30, justify="center")
+    entry_nomeAutor.place(y=95, x=40)
+
+    btProcurar = ctk.CTkButton(
+        telaConsultaAutor, text="Procurar", command=procura_autor)
+    btProcurar.place(y=145, x=95)
+
+    btVoltar = ctk.CTkButton(telaConsultaAutor, text="Voltar ao Menu Anterior", text_color="black", fg_color="#6D7B74",
+                             hover_color="#55635C", font=("Arial", 14, "underline"), command=lambda: voltar_tela1(telaConsultaAutor))
+    btVoltar.place(y=5, x=5)
+
+    btSair = ctk.CTkButton(telaConsultaAutor, text="Sair", fg_color="black",
+                           hover_color="#8B2F2F", command=telaConsultaAutor.destroy)
+    btSair.place(y=220, x=95)
+
+    telaConsultaAutor.mainloop()
+def ter_resultadoautor(dados, telaConsultaAutor): # Tela Ter onde mostra os dados dos livros puxados
+    
+    telaResultadoLivro = ctk.CTkToplevel(fg_color="#000000")
+    telaResultadoLivro.title("Resultado da Busca")
+    telaResultadoLivro.geometry("750x420")
+    telaResultadoLivro.configure(bg="black")
+    telaResultadoLivro.resizable(False, False)
+
+    def voltar():
+        telaResultadoLivro.destroy()
+        telaConsultaAutor()
+
+    btVoltar = ctk.CTkButton(telaResultadoLivro, text="Voltar ao Menu Anterior", text_color="white", fg_color="#000000",
+                             hover_color="#575757", font=("Arial", 14, "underline"), command=voltar)
+    btVoltar.place(y=10, x=10)
+
+    # === Frame da tabela ===
+    frame = tk.Frame(telaResultadoLivro, bg="black", width=900, height=450)
+    frame.place(relx=0.5, rely=0.55, anchor="center")
+    frame.grid_propagate(False)
+
+    # === Estilo visual ===
+    style = ttk.Style()
+    style.theme_use("clam")
+
+    style.configure("Treeview",
+                    font=("Arial", 12),
+                    background="black",
+                    foreground="white",
+                    fieldbackground="black",
+                    rowheight=30,
+                    borderwidth=1)
+
+    style.configure("Treeview.Heading",
+                    font=("Arial", 14, "bold"),
+                    background="#78368E",
+                    foreground="white",
+                    relief="flat")
+
+    style.map("Treeview",
+              background=[('selected', '#347083')],
+              foreground=[('selected', 'white')])
+
+    # === Scrollbars ===
+    tree_scroll_y = tk.Scrollbar(frame, orient="vertical")
+    tree_scroll_y.grid(row=0, column=1, sticky="ns")
+
+    tree_scroll_x = tk.Scrollbar(frame, orient="horizontal")
+    tree_scroll_x.grid(row=1, column=0, sticky="ew")
+
+    # === Colunas da Tabela ===
+    colunas = (
+        "Autor", "NomeLivro", "Genero", "Idioma", "QntdPagina",
+        "Editora", "DataPublicacao", "QntdDisponivel"
+    )
+
+    tree = ttk.Treeview(
+        frame,
+        columns=colunas,
+        show="headings",
+        yscrollcommand=tree_scroll_y.set,
+        xscrollcommand=tree_scroll_x.set
+    )
+    tree.grid(row=0, column=0, sticky="nsew")
+
+    # === Conectar os scrollbars à tabela ===
+    tree_scroll_y.config(command=tree.yview)
+    tree_scroll_x.config(command=tree.xview)
+
+    # === Redimensionamento automático no grid ===
+    frame.grid_rowconfigure(0, weight=1)
+    frame.grid_columnconfigure(0, weight=1)
+
+    # === Configurações das colunas ===
+    for col in colunas:
+        tree.heading(col, text=col)
+        tree.column(col, anchor="center", width=120, stretch=True)
+
+    # === Linhas alternadas ===
+    tree.tag_configure('oddrow', background="#1a1a1a")
+    tree.tag_configure('evenrow', background="#2a2a2a")
+
+    livros = dados
+
+    # === Inserção de dados ===
+    for i, livro in enumerate(livros):
+        Autor = livro['Autor']
+        NomeLivro = livro['NomeLivro']
+        try:
+            Genero = livro['genero']['NomeGenero']
+        except:
+            Genero = 'Gênero não encontrado'
+        Idioma = livro['Idioma']
+        QntdPagina = livro['QuantidadePaginas']
+        Editora = livro['Editora']
+        DataPublicacao = livro['DataPublicacao']
+        QntdDisponivel = livro['QuantidadeDisponivel']
+
+        tree.insert("", "end", values=(
+            Autor, NomeLivro, Genero, Idioma, QntdPagina,
+            Editora, DataPublicacao, QntdDisponivel
+        ), tags=('evenrow' if i % 2 == 0 else 'oddrow'))
+
 
 # __________________________________CADASTROS________________________________________________ #
 
@@ -270,7 +758,7 @@ def pri_cadastro(tela1):  # Tela Pri de Cadastro, escolhendo o que cadastrar
     opcao.place(y=120, x=70)
 
     btCadastroLivro = ctk.CTkButton(telaCadastro, text="Cadastro Cliente", fg_color="black",
-                                      hover_color="#5F8D96", command=lambda: sec_cadastroUsuario(telaCadastro))
+                                    hover_color="#5F8D96", command=lambda: sec_cadastroUsuario(telaCadastro))
     btCadastroLivro.place(y=150, x=60)
 
     btCadastroLivro = ctk.CTkButton(telaCadastro, text="Cadastro Livro", fg_color="black",
@@ -286,6 +774,7 @@ def pri_cadastro(tela1):  # Tela Pri de Cadastro, escolhendo o que cadastrar
     btSair.place(y=380, x=105)
 
     telaCadastro.mainloop()
+
 
 def sec_cadastroLivro(telaCadastro):  # Tela  Sec de Cadastro do Livro
 
@@ -601,6 +1090,7 @@ def pri_reserva(tela1):  # Tela Pri de Reservas, escolhendo o que fazer
 
     telaReservas.mainloop()
 
+
 def sec_nova_reserva(reserva):  # Tela Sec de Nova Reserva
     reserva.destroy()
     telaNovaReserva = CustomCTk(fg_color="#2B2B2B")
@@ -615,7 +1105,7 @@ def sec_nova_reserva(reserva):  # Tela Sec de Nova Reserva
             "DataRetirada": entry_dataretirada.get(),
             "DataVolta": entry_datavolta.get(),
             "Entrega": entry_retirada.get(),
-            "Observacao": entry_observacao.get() 
+            "Observacao": entry_observacao.get()
         }
 
         try:
@@ -630,7 +1120,6 @@ def sec_nova_reserva(reserva):  # Tela Sec de Nova Reserva
         except Exception as e:
             messagebox.showerror(
                 "Erro", f"Erro ao conectar com a API:\n{str(e)}")
-
 
     data_retirada_var = tk.StringVar(master=telaNovaReserva)
     data_volta_var = tk.StringVar(master=telaNovaReserva)
@@ -704,8 +1193,8 @@ def sec_nova_reserva(reserva):  # Tela Sec de Nova Reserva
     entrega.place(y=250, x=75)
     entry_retirada = ctk.CTkEntry(telaNovaReserva, width=100, height=15)
     entry_retirada.place(y=250, x=230)
-    
-    # OBS 
+
+    # OBS
     observacao = ctk.CTkLabel(telaNovaReserva, text="Observaçãa da Reserva:")
     observacao.place(y=280, x=115)
     entry_observacao = ctk.CTkEntry(telaNovaReserva, width=400, height=15)
@@ -720,7 +1209,7 @@ def sec_nova_reserva(reserva):  # Tela Sec de Nova Reserva
     btfechar.place(y=430, x=280)
 
     btReservar = ctk.CTkButton(
-        telaNovaReserva, text="Reservar", fg_color="#1E5128", hover_color="#4E9F3D", command= cadastro_novareserva)
+        telaNovaReserva, text="Reservar", fg_color="#1E5128", hover_color="#4E9F3D", command=cadastro_novareserva)
     btReservar.place(y=430, x=400)
 
     telaNovaReserva.mainloop()
