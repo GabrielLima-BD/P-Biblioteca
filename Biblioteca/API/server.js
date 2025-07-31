@@ -1,3 +1,4 @@
+
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -193,53 +194,62 @@ app.get('/livro/autor', async (req, res) => {
         return res.status(500).json({ message: 'Erro inesperado ao buscar Autor(a)', error: error.message });
     }
 });
-// Rota para buscar por nome do gênero
+    
+// Buscar livros com os GeneroID encontrados (usando operador in)
 app.get('/genero', async (req, res) => {
-    try {
-        const { NomeGenero } = req.query;
-        console.log('Parâmetro NomeGenero:', NomeGenero);
+  try {
+    const NomeGenero = req.query.NomeGenero?.trim();
+    if (!NomeGenero) return res.status(400).json({ message: 'NomeGenero é obrigatório' });
 
-        if (!NomeGenero || NomeGenero.trim() === '') {
-            console.log('Erro: NomeGenero vazio ou inválido');
-            return res.status(400).json({ message: 'NomeGenero é obrigatório' });
-        }
+    const { data: generos, error: generoError } = await supabase
+      .from('genero')
+      .select('GeneroID, NomeGenero')
+      .ilike('NomeGenero', `%${NomeGenero}%`);
 
-        console.log('Executando consulta no Supabase com NomeGenero:', NomeGenero.trim());
-        const { data, error } = await supabase
-            .from('livro')
-            .select(`
-                Autor,
-                NomeLivro,
-                Idioma,
-                QuantidadePaginas,
-                Editora,
-                DataPublicacao,
-                QuantidadeDisponivel,
-                genero:GeneroID (
-                    NomeGenero
-                )
-            `)
-            .not('GeneroID', 'is', null) // Exclui livros com GeneroID nulo
-            .eq('genero.NomeGenero', NomeGenero.trim()); // Filtro exato para o gênero
-
-        if (error) {
-            console.error('Erro ao buscar livros por gênero:', error);
-            return res.status(500).json({ message: 'Erro no banco', error: error.message });
-        }
-
-        console.log('Dados retornados pelo Supabase:', JSON.stringify(data, null, 2));
-        if (!data || data.length === 0) {
-            console.log('Nenhum livro encontrado para NomeGenero:', NomeGenero);
-            return res.status(404).json({ message: 'Nenhum livro encontrado para o gênero especificado' });
-        }
-
-        console.log('Enviando resposta com', data.length, 'livro(s)');
-        res.status(200).json({ message: 'Livros encontrados', data });
-    } catch (error) {
-        console.error('Erro inesperado na rota /genero:', error);
-        return res.status(500).json({ message: 'Erro inesperado', error: error.message });
+    if (generoError) {
+      return res.status(500).json({ message: 'Erro ao buscar gênero', error: generoError.message });
     }
+
+    if (!generos || generos.length === 0) {
+      return res.status(404).json({ message: 'Gênero não encontrado' });
+    }
+
+    const generoID = generos[0].GeneroID;
+    if (!generoID) {
+      return res.status(500).json({ message: 'GeneroID está indefinido', genero: generos[0] });
+    }
+
+    const { data: livros, error: livroError } = await supabase
+      .from('livro')
+      .select(`
+        Autor,
+        NomeLivro,
+        Idioma,
+        QuantidadePaginas,
+        Editora,
+        DataPublicacao,
+        QuantidadeDisponivel,
+        genero:GeneroID (
+          NomeGenero
+        )
+      `)
+      .eq('GeneroID', generoID);
+
+    if (livroError) {
+      return res.status(500).json({ message: 'Erro ao buscar livros', error: livroError.message });
+    }
+
+    if (!livros || livros.length === 0) {
+      return res.status(404).json({ message: 'Nenhum livro encontrado para o gênero' });
+    }
+
+    return res.json({ data: livros });
+
+  } catch (err) {
+    return res.status(500).json({ message: 'Erro inesperado', error: err.message });
+  }
 });
+
 
 //___________________ROTAS PARA CADASTRO______________________//
 
