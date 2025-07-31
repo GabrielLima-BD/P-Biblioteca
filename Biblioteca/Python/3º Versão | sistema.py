@@ -48,29 +48,29 @@ def tela1():  # Tela Inicial para o Funcionario
     tela1.title("Inicio")
     tela1.geometry("250x420")
 
-    textprincipal = ctk.CTkLabel(tela1, text="Seja Bem Vindo!")
+    textprincipal = ctk.CTkLabel(tela1, text="Seja Bem Vindo!", text_color="white")
     textprincipal.place(y=45, x=80)
 
-    textopcoes = ctk.CTkLabel(tela1, text="Escolha uma opção:")
+    textopcoes = ctk.CTkLabel(tela1, text="Escolha uma opção:", text_color="white")
     textopcoes.place(y=115, x=70)
 
-    btConsulta = ctk.CTkButton(tela1, text="Consulta", fg_color="black",
+    btConsulta = ctk.CTkButton(tela1, text="Consulta", fg_color="black", text_color="white",
                                hover_color="#9CAD84", command=lambda: pri_consulta(tela1))
     btConsulta.place(y=150, x=60)
 
-    btCadastro = ctk.CTkButton(tela1, text="Cadastro", fg_color="black",
+    btCadastro = ctk.CTkButton(tela1, text="Cadastro", fg_color="black", text_color="white",
                                hover_color="#B36A5E", command=lambda: pri_cadastro(tela1))
     btCadastro.place(y=185, x=60)
 
-    btReservas = ctk.CTkButton(tela1, text="Reservas", fg_color="black",
+    btReservas = ctk.CTkButton(tela1, text="Reservas", fg_color="black", text_color="white",
                                hover_color="#5F8D96", command=lambda: pri_reserva(tela1))
     btReservas.place(y=220, x=60)
 
-    btExclusao = ctk.CTkButton(tela1, text="Exclusão", fg_color="black",
+    btExclusao = ctk.CTkButton(tela1, text="Exclusão", fg_color="black", text_color="white",
                                hover_color="#7C5E67", command=lambda: pri_exclusao(tela1))
     btExclusao.place(y=255, x=60)
 
-    btSair = ctk.CTkButton(tela1, text="Sair", fg_color="black",
+    btSair = ctk.CTkButton(tela1, text="Sair", fg_color="black", text_color="white",
                            hover_color="#8B2F2F", command=tela1.destroy)
     btSair.place(y=385, x=105)
 
@@ -609,33 +609,18 @@ def sec_consulta_genero(telaConsulta):
             messagebox.showwarning("Atenção", "Digite um gênero válido.")
             return
 
-        try:
-            print(f"Enviando requisição para http://localhost:3000/genero?NomeGenero={genero_digitado}")
-            response = requests.get(
-                "http://localhost:3000/genero", params={"NomeGenero": genero_digitado})
-            response.raise_for_status()
-            dados = response.json()
-            print(f"Resposta da API: {json.dumps(dados, indent=2)}")
-            livros = dados.get("data", [])
 
-            if livros:
-                # Filtrar livros com gênero correspondente
-                livros_filtrados = [
-                    livro for livro in livros 
-                    if livro.get('genero') and livro['genero'].get('NomeGenero') == genero_digitado
-                ]
-                print(f"{len(livros_filtrados)} livro(s) encontrado(s) para o gênero {genero_digitado}")
-                if livros_filtrados:
-                    ter_resultadogenero(livros_filtrados, telaConsultaGenero, genero_digitado)
-                else:
-                    print(f"Nenhum livro com gênero {genero_digitado} encontrado após filtragem")
-                    messagebox.showinfo("Resultado", f"Nenhum livro encontrado para o gênero {genero_digitado}.")
-            else:
-                print(f"Nenhum livro encontrado para o gênero {genero_digitado}")
-                messagebox.showinfo("Resultado", f"Nenhum livro encontrado para o gênero {genero_digitado}.")
-        except requests.exceptions.RequestException as e:
-            print(f"Erro ao buscar gênero: {e}")
-            messagebox.showerror("Erro", f"Erro ao buscar gênero: {e}")
+        print(f"Enviando requisição para http://localhost:3000/genero?NomeGenero={genero_digitado}")
+        response = requests.get("http://localhost:3000/genero", params={"NomeGenero": genero_digitado})
+        response.raise_for_status()
+        dados = response.json()
+        print(f"Resposta da API: {json.dumps(dados, indent=2)}")
+        livros = dados.get("data", [])
+
+        if livros:
+            ter_resultadogenero(livros, telaConsultaGenero, genero_digitado)
+        else:
+            messagebox.showinfo("Resultado", f"Nenhum livro encontrado para o gênero {genero_digitado}.")
 
     NomeGenero = ctk.CTkLabel(
         telaConsultaGenero, text="Digite o Nome do Gênero que deseja Buscar")
@@ -1164,19 +1149,19 @@ def sec_nova_reserva(reserva):  # Tela Sec de Nova Reserva
     validacao_cmd = telaNovaReserva.register(somente_inteiros)
 
     # CPF do usuario que vai ficar reservado
-    CpfReserva = ctk.CTkLabel(telaNovaReserva, text="Digite o CPF:")
-    CpfReserva.place(y=100, x=120)
+    CpfReserva = ctk.CTkLabel(telaNovaReserva, text="Digite o CPF:", text_color="white")
+    CpfReserva.place(y=100, x=150)
     entry_cpfreserva = ctk.CTkEntry(telaNovaReserva, width=400, height=15)
     entry_cpfreserva.place(y=100, x=230)
 
     # Nome do Livro que vai ser reservado
-    Nomelivro = ctk.CTkLabel(telaNovaReserva, text="Digite o Nome do Livro:")
+    Nomelivro = ctk.CTkLabel(telaNovaReserva, text="Digite o Nome do Livro:", text_color="white")
     Nomelivro.place(y=130, x=90)
     entry_nomelivro = ctk.CTkEntry(telaNovaReserva, width=400, height=15)
     entry_nomelivro.place(y=130, x=230)
 
     # Qunantidade que vai ser reservada
-    qntdLivros = ctk.CTkLabel(telaNovaReserva, text="Digite a Quantidade:")
+    qntdLivros = ctk.CTkLabel(telaNovaReserva, text="Digite a Quantidade:", text_color="white")
     qntdLivros.place(y=160, x=105)
     entry_qntdlivro = ctk.CTkEntry(telaNovaReserva, validate="key", validatecommand=(
         validacao_cmd, "%P"), width=60, height=15, justify="center")
@@ -1184,7 +1169,7 @@ def sec_nova_reserva(reserva):  # Tela Sec de Nova Reserva
 
     # Data que esta sendo retirada o livro
     dataRetirada = ctk.CTkLabel(
-        telaNovaReserva, text="Digite a Data da Retirada:")
+        telaNovaReserva, text="Digite a Data da Retirada:", text_color="white")
     dataRetirada.place(y=190, x=77)
     entry_dataretirada = ctk.CTkEntry(telaNovaReserva, textvariable=data_retirada_var,
                                       placeholder_text="DD/MM/AAAA", width=85, height=15, justify="center")
@@ -1193,21 +1178,21 @@ def sec_nova_reserva(reserva):  # Tela Sec de Nova Reserva
 
     # Data prevista para que o Livro for devolvido
     dataVolta = ctk.CTkLabel(
-        telaNovaReserva, text="Digite a Data Prevista para Volta:")
+        telaNovaReserva, text="Digite a Data Prevista para Volta:", text_color="white")
     dataVolta.place(y=220, x=35)
     entry_datavolta = ctk.CTkEntry(telaNovaReserva, textvariable=data_volta_var,
                                    placeholder_text="DD/MM/AAAA", width=85, height=15, justify="center")
     entry_datavolta.place(y=220, x=230)
     entry_datavolta._entry.bind("<FocusOut>", formatar_data)
 
-    entrega = ctk.CTkLabel(telaNovaReserva, text="Digite a forma de retirada:")
+    entrega = ctk.CTkLabel(telaNovaReserva, text="Digite a forma de retirada:", text_color="white")
     entrega.place(y=250, x=75)
     entry_retirada = ctk.CTkEntry(telaNovaReserva, width=100, height=15)
     entry_retirada.place(y=250, x=230)
 
     # OBS
-    observacao = ctk.CTkLabel(telaNovaReserva, text="Observaçãa da Reserva:")
-    observacao.place(y=280, x=115)
+    observacao = ctk.CTkLabel(telaNovaReserva, text="Observaçãa da Reserva:", text_color="white")
+    observacao.place(y=280, x=87)
     entry_observacao = ctk.CTkEntry(telaNovaReserva, width=400, height=15)
     entry_observacao.place(y=280, x=230)
 
@@ -1215,7 +1200,7 @@ def sec_nova_reserva(reserva):  # Tela Sec de Nova Reserva
                              hover_color="#121212", command=lambda: pri_reserva(telaNovaReserva), font=("Arial", 14, "underline"))
     btVoltar.place(y=15, x=15)
 
-    btfechar = ctk.CTkButton(telaNovaReserva, text="Fechar", fg_color="black",
+    btfechar = ctk.CTkButton(telaNovaReserva, text="Fechar", fg_color="black", text_color="white",
                              hover_color="#8B2F2F", command=telaNovaReserva.destroy)
     btfechar.place(y=430, x=280)
 
